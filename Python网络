@@ -1,0 +1,134 @@
+Python网络
+1.URL uniform resource locator
+URL格式规范
+
+例：https://www.douban.com/gallery/topic/116390/?from=hot_topic_note&sort = new
+其中
+默认路径 https://www.douban.com/
+路径 /gallery/topic/116390/
+问号是路径和参数的分隔符
+后面的参数是 key = value 的形式 &是分隔符
+在默认路径中: https：是协议类型 //是分隔符 www.douban.com是域名
+
+如果开头不是“/”，是相对路径
+
+2.get 请求
+
+import requests
+result = requests.get('https://www.ustc.edu.cn/')
+
+带参数时：
+result = requests.get("?前",params = {'':'','':''})
+
+需要登陆时：
+result = requests.post('https://accounts.douban.com/login',data = {'':'','':''})
+
+注册时：
+result = requests.post('?前',json = {'':'','':''})
+
+
+3.response
+
+response.status_code 
+如果这个内容等于200，成功；
+如果这个内容等于404，失败。
+
+response.text 具体文本
+
+response.json() 可以得到字典数据，有时是列表
+
+4.头文件
+requests.get(url,headers = {'User_Agent':'','Referer':'','Host':''})
+
+User_Agent 计算机参数
+Referer 从那个网页访问该网页
+Host 域名
+
+5.下载图片与文件
+
+fo.open("foo.txt","w")
+fo.write("www.runoob.com!\n Very good site!")
+fo.close()
+
+fo = open("china_city_list.xlsx","wb")
+fo.write(response.content)
+fo.close()
+
+解析excel
+
+import xlrd
+x1 = xlrd.open_workbook('xzq_201907.xlsx')
+s1 = x1.sheet_by_index(0)
+rows = s1.nrows #总行数
+cols = s1.ncols #总列数
+first = s1.cell(0,0).value #单元格的数值
+last = s1.cell(rows - 1, cols - 1).value
+
+6.cookie与session
+cookie存有登陆信息在Google的开发者页面的network --> main 如果没有main就选与地址栏相同的
+
+在爬取登录后才能显示的页面时
+requests.get(url,headers=header,cookies=cookies)
+
+另外python自带读cookie功能
+from utils import readCookie
+Cookies = readCookie()
+
+例1: import requests
+def readCookie():
+  fo = open("cookie.txt","r")
+  cookies = {}
+  for line in fo.read().split(';'):
+    name,value = line.strip().split('=',1)
+    cookies[name] = value
+    return cookies
+
+url = 
+headers = 
+cookies = readCookie()
+response = requests.get('')
+
+cookie有弊端，可利用Session写程序
+寻找页面信息
+第一步：用Google输入原网址
+第二步：在输账号、密码前打开开发者页面，勾选preserve log
+第三步：点击登录，找到login.api.读取信息
+
+例2:利用Session直接访问登录页面
+
+import requests
+
+urlLogin = 'https://front-gateway.mtime.com/user/user/login.api'
+
+formdata = {
+'name':'18860965708'
+'password':'e1f113029a1048c64cf9636199bbf06a'
+}
+
+header = {'Referer':http://www.mtime.com/'
+'Host':'front-gateway.mtime.com'
+'User-Agent':'Mozilla...(省略)'
+}
+
+session = requests.Session()
+response = session.post(urlLogin,data = formdata,headers = header)
+
+print(response.status_code)
+print(response.text)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
