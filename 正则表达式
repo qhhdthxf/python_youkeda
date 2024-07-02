@@ -1,0 +1,189 @@
+第一章 正则表达式基础
+
+例1:
+import re
+
+text = '''床前明月光，
+
+疑是地上霜。
+举头	望明月，
+低头思故乡。
+'''
+
+regex1 = "\n"
+matchObj = re.search(regex1, text)
+if matchObj:
+  print('有换行符')
+else:
+  print('无换行符')
+
+\n 是换行符
+该段代码用于检测是否存在换行符
+
+例2:
+import re
+
+text = "┊	╋。Máì葬"
+
+regex1 = '/s' 
+matchObj = re.search(regex1, text)
+if matchObj:
+  print('不合法')
+else:
+  print('合法')
+
+\s 是空白符 \S 是非空白符
+该段代码用于检测是否存在换行符
+
+例3:
+import re
+
+text = '18860965708'
+
+regex = '^1'
+matchObj = re.search(regex,text)
+
+if matchObj:
+  print(text + " 是以 1 开头的手机号")
+else:
+  print(text + ' 不是以 1 开头的手机号')
+
+检测是否以什么开头
+就用 ^
+检测是否以什么结尾
+就用 $
+例如 '^1'、'6$'
+
+另外
+/w 匹配任何一个字母、数字或者下划线（单词字符）
+/W 匹配任何一个非单词字符
+/d 匹配一个数字字符
+/D 匹配一个非数字字符
+. 匹配一个/r、/n以外的任何一个字符(换行或者回车)
+
+第二章 特殊字符
+
+在正则表达式前加一个反斜杠 可以使得表达式失去原义，当成普通文本去匹配
+
+例1:
+import re
+
+text = '''<!DOCTYPE html>
+<!--STATUS OK--><html> <head><meta http-equiv=content-type content=text/html;charset=utf-8><meta http-equiv=X-UA-Compatible content=IE=Edge><meta content=always name=referrer><link rel=stylesheet type=text/css href=http://s1.bdstatic.com/r/www/cache/bdorz/baidu.min.css><title>百度一下，你就知道</title></head> <body link=#0000cc> <div id=wrapper> <div id=head> <div class=head_wrapper> <div class=s_form> <div class=s_form_wrapper> <div id=lg> <img hidefocus=true src=//www.baidu.com/img/bd_logo1.png width=270 height=129> </div> <form id=form name=f action=//www.baidu.com/s class=fm> <input type=hidden name=bdorz_come value=1> <input type=hidden name=ie value=utf-8> <input type=hidden name=f value=8> <input type=hidden name=rsv_bp value=1> <input type=hidden name=rsv_idx value=1> <input type=hidden name=tn value=baidu><span class="bg s_ipt_wr"><input id=kw name=wd class=s_ipt value maxlength=255 autocomplete=off autofocus></span><span class="bg s_btn_wr"><input type=submit id=su value=百度一下 class="bg s_btn"></span> </form> </div> </div> <div id=u1> <a href=http://news.baidu.com name=tj_trnews class=mnav>新闻</a> <a href=http://www.hao123.com name=tj_trhao123 class=mnav>hao123</a> <a href=http://map.baidu.com name=tj_trmap class=mnav>地图</a> <a href=http://v.baidu.com name=tj_trvideo class=mnav>视频</a> <a href=http://tieba.baidu.com name=tj_trtieba class=mnav>贴吧</a> <noscript> <a href=http://www.baidu.com/bdorz/login.gif?login&amp;tpl=mn&amp;u=http%3A%2F%2Fwww.baidu.com%2f%3fbdorz_come%3d1 name=tj_login class=lb>登录</a> </noscript> <script>document.write('<a href="http://www.baidu.com/bdorz/login.gif?login&tpl=mn&u='+ encodeURIComponent(window.location.href+ (window.location.search === "" ? "?" : "&")+ "bdorz_come=1")+ '" name="tj_login" class="lb">登录</a>');</script> <a href=//www.baidu.com/more/ name=tj_briicon class=bri style="display: block;">更多产品</a> </div> </div> </div> <div id=ftCon> <div id=ftConw> <p id=lh> <a href=http://home.baidu.com>关于百度</a> <a href=http://ir.baidu.com>About Baidu</a> </p> <p id=cp>&copy;2017&nbsp;Baidu&nbsp;<a href=http://www.baidu.com/duty/>使用百度前必读</a>&nbsp; <a href=http://jianyi.baidu.com/ class=cp-feedback>意见反馈</a>&nbsp;京ICP证030173号&nbsp; <img src=//www.baidu.com/img/gs.gif> </p> </div> </div> </div> </body> </html>
+'''
+
+regex = '<html>|<body>|<head>'
+matchObj = re.search(regex,text)
+if matchObj:
+  print('抓取页面正常')
+else:
+  print('抓取页面不正常')
+
+该例子的目的是检测text中是否有<html>或<body>或<head>
+‘｜’是或表达式
+
+例2:
+import re
+
+text = '18860965708'
+
+regex = '^(13[5-9])|(15[0-2,7-9])|(18[78]|147)'
+matchObj = re.search(regex, text)
+if matchObj:
+  print(text + ' 是中国移动手机号')
+else:
+  print(text + ' 不是中国移动手机号')
+
+() 小括号是子表达式
+[] 中括号中[78]是枚举 [0-2]、[a-f]是范围
+也可以使用[a4f7]类似
+另外，在中括号前使用^为排除之意
+
+例2 plus：
+import re
+
+text = '13888887296'
+
+regex = r'^(13[4-9]|15[0-2,7-9]|18(7|8))\d{8}$'
+matchObj = re.match(regex, text)
+if matchObj:
+  print(text + ' 是中国移动手机号')
+else:
+  print(text + ' 不是中国移动手机号')
+在例2的基础上新增了要求在对应开头以外检测后面跟着8位数字
+
+当匹配o这个字母时
+o？ 是1次或0次
+o+ 是1次或多次
+o* 是任意次
+o{n} 是n次
+o{n,} 是n或n以上
+o{n,m}是至少n次至多m次
+o{,m} 是0-m次 至多m次
+
+例3:
+import re
+
+text = '320703200206061018'
+
+regex = r'^[1-9]\d{16}(\d|x)$'
+matchObj = re.match(regex, text)
+
+if matchObj:
+  print(text + " 是正确的身份证号")
+else:
+  print(text + ' 不是正确的身份证号')
+
+检测是否为合法身份证号码：
+1.18位号码
+2.开头不能为0
+3.结尾只能是x或者数字
+
+这里注意^...$ 是指以什么开头和结尾，即这个字符串只能为这个
+
+注意贪婪模式与非贪婪模式的概念
+
+第三章 函数
+
+re.search()方法检查全文
+re.match()方法检查开头
+
+这俩只返回结果，不返回具体文本
+
+re.group()会回馈内容，如果返回None，就是无匹配。
+
+例1:import re
+
+text = '''<!DOCTYPE html>
+<!--STATUS OK--><html> <head><meta http-equiv=content-type content=text/html;charset=utf-8><meta http-equiv=X-UA-Compatible content=IE=Edge><meta content=always name=referrer><link rel=stylesheet type=text/css href=http://s1.bdstatic.com/r/www/cache/bdorz/baidu.min.css><title>百度一下，你就知道</title></head> <body link=#0000cc> <div id=wrapper> <div id=head> <div class=head_wrapper> <div class=s_form> <div class=s_form_wrapper> <div id=lg> <img hidefocus=true src=//www.baidu.com/img/bd_logo1.png width=270 height=129> </div> <form id=form name=f action=//www.baidu.com/s class=fm> <input type=hidden name=bdorz_come value=1> <input type=hidden name=ie value=utf-8> <input type=hidden name=f value=8> <input type=hidden name=rsv_bp value=1> <input type=hidden name=rsv_idx value=1> <input type=hidden name=tn value=baidu><span class="bg s_ipt_wr"><input id=kw name=wd class=s_ipt value maxlength=255 autocomplete=off autofocus></span><span class="bg s_btn_wr"><input type=submit id=su value=百度一下 class="bg s_btn"></span> </form> </div> </div> <div id=u1> <a href=http://news.baidu.com name=tj_trnews class=mnav>新闻</a> <a href=http://www.hao123.com name=tj_trhao123 class=mnav>hao123</a> <a href=http://map.baidu.com name=tj_trmap class=mnav>地图</a> <a href=http://v.baidu.com name=tj_trvideo class=mnav>视频</a> <a href=http://tieba.baidu.com name=tj_trtieba class=mnav>贴吧</a> <noscript> <a href=http://www.baidu.com/bdorz/login.gif?login&amp;tpl=mn&amp;u=http%3A%2F%2Fwww.baidu.com%2f%3fbdorz_come%3d1 name=tj_login class=lb>登录</a> </noscript> <script>document.write('<a href="http://www.baidu.com/bdorz/login.gif?login&tpl=mn&u='+ encodeURIComponent(window.location.href+ (window.location.search === "" ? "?" : "&")+ "bdorz_come=1")+ '" name="tj_login" class="lb">登录</a>');</script> <a href=//www.baidu.com/more/ name=tj_briicon class=bri style="display: block;">更多产品</a> </div> </div> </div> <div id=ftCon> <div id=ftConw> <p id=lh> <a href=http://home.baidu.com>关于百度</a> <a href=http://ir.baidu.com>About Baidu</a> </p> <p id=cp>&copy;2017&nbsp;Baidu&nbsp;<a href=http://www.baidu.com/duty/>使用百度前必读</a>&nbsp; <a href=http://jianyi.baidu.com/ class=cp-feedback>意见反馈</a>&nbsp;京ICP证030173号&nbsp; <img src=//www.baidu.com/img/gs.gif> </p> </div> </div> </div> </body> </html>
+'''
+
+regex = r'^<[\s\S]*<html>[\s\S]*<head>[\s\S]*</head>[\s\S]*<body[\s\S]*</body>[\s\S]*</html>$'
+matchObj = re.search(regex,text)
+if matchObj:
+  print('抓取页面正常')
+else:
+  print('抓取页面不正常')
+这段代码的目的：
+1.检测以<开头
+2.检测以</html>结尾
+3.检测内容包含<html>、<head>、</head>、<body、</body>
+4.检测在任何两个标签之间有任意数量的任意字符
+
+强调：分辨好左划线右划线
+另外，任意字符用[\s\S]* 表示
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
