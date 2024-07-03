@@ -150,7 +150,7 @@ re.match()方法检查开头
 
 这俩只返回结果，不返回具体文本
 
-re.group()会回馈内容，如果返回None，就是无匹配。
+matchObj.group()会回馈内容，如果返回None，就是无匹配。
 
 例1:import re
 
@@ -173,10 +173,75 @@ else:
 强调：分辨好左划线右划线
 另外，任意字符用[\s\S]* 表示
 
+start()方法是检索匹配内容的首字符的位置
+end()方法是检索匹配内容的尾字符的位置
+span()方法是返回一个元组，这个元组包含了首字符和尾字符两条信息
+
+例2：import re
+
+text = '''本人性格开朗、稳重、有活力，待人热情、真诚；
+工作认真负责，积极主动，能吃苦耐劳，用于承受压力，勇于创新；
+是云梦江氏最高级的优秀青年。
+有很强的组织能力和团队协作精神，具有较强的适应能力；纪律性强，工作积极配合；意志坚强，具有较强的无私奉献精神。
+'''
+
+regex1 = r'最高级'
+regex2 = r'世界级'
+regex3 = r'国家级'
+regexs = [regex1,regex2,regex3]
+
+for i in regexs:
+  matchObj = re.search(i,text)
+  if matchObj:
+    print(matchObj.group()+'的位置是：'+str(matchObj.start()))
+
+这个例子注意一下matchObj.group()、str(matchObj.start())
+
+re库有这样的方法：
+1.findall()
+2.finditer()
+
+第一个返回列表
+第二个返回迭代器
+
+例3:
+import re
+
+text = '''本人性格开朗、稳重、有活力，待人热情、真诚；
+工作认真负责，积极主动，能吃苦耐劳，用于承受压力，勇于创新；
+是云梦江氏世界级的优秀青年。
+有最高级的组织能力和团队协作精神，具有世界级适应能力；纪律性强，工作积极配合；意志坚强，具有最高级无私奉献精神。
+'''
+
+regex1 = r'最高级'
+regex2 = r'世界级'
+regex3 = r'国家级'
+regexs = [regex1,regex2,regex3]
+matchs = []
+for word in regexs:
+  matchObj = re.findall(word,text)
+  matchs.append(matchObj)
+
+print(matchs)
+
+re.sub(pattern,repl,sourceText,count)
+第一个参数是正则表达式，第二个参数是替换词
+第三个参数是原文档，第四个参数是最大替换次数
+第四个参数可有可无。
+
+matchObj.group()
+当正则表达式中有子表达式时
+
+matchObj.group(0)
+可以对应第一个子表达式
+matchObj.group(1)
+可以对应第二个子表达式
+以此类推
 
 
 
 
+  
 
 
 
