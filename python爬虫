@@ -35,3 +35,35 @@ for hero in heros:
   list.append({key1:value1,key2:value2})
 
 print(list)
+
+
+例2:
+import requests
+import re
+
+url = "http://news.4399.com/gonglue/wzlm/daoju/"
+
+response = requests.get(url)
+response.encoding = 'gb2312'
+data = response.text
+
+first_regex = r'<ul(\s*?)class="cf"(\s*?)id="hreo_list">([\s\S]+?)</ul>'
+pattern = re.compile(first_regex)
+weapon = pattern.search(data).group(3).split('</li>')[0:-1]
+
+
+weaponName_regex = r'.(jpg|png)">(.+?)</a>'
+weaponUrl_regex = r'lz_src="(.+?)">'
+weaponName_pattern = re.compile(weaponName_regex)
+weaponUrl_pattern = re.compile(weaponUrl_regex)
+
+weapons = []
+
+for i in weapon:
+  name = weaponName_pattern.search(i).group(2)
+  url = weaponUrl_pattern.search(i).group(1)
+  weapons.append({'name':name,'url':"http:"+url})
+
+# 请补充代码，填充weapons
+
+print(weapons)
