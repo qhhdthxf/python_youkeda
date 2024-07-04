@@ -234,9 +234,9 @@ re.sub(pattern,repl,sourceText,count)
 matchObj.group()
 当正则表达式中有子表达式时
 
-matchObj.group(0)
-可以对应第一个子表达式
 matchObj.group(1)
+可以对应第一个子表达式
+matchObj.group(2)
 可以对应第二个子表达式
 以此类推
 
