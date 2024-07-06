@@ -260,6 +260,14 @@ import requests
 from bs4 import BeautifulSoup
 import re
 
+def getName(film):
+  return film.select("li > ul > li.stitle > a")[0].get_text().strip()
+def getBill(film):
+  text = film.select("li > ul > li.poster > a > img")[0]
+  regex = r'src="(\S+?)"'
+  reg = re.compile(regex)
+  matchObj = re.search(reg,str(text))
+  return matchObj.group(1)
 
 resultFilms = []
 
@@ -271,6 +279,19 @@ result = BeautifulSoup(response.text,'html.parser')
 films = result.select("#nowplaying > div.mod-bd > ul > li")
 
 for film in films:
+  name = getName(film)
+  bill = getBill(film)
+  resultFilms.append({'name':name,'bill':bill})
+print(resultFilms)
+
+[{'name': '默杀', 'bill': 'https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2910148246.jpg'},
+{'name': '欢迎来到我身...', 'bill': 'https://img2.doubanio.com/view/photo/s_ratio_poster/public/p2909082111.jpg'},
+{'name': '伞少女', 'bill': 'https://img3.doubanio.com/view/photo/s_ratio_poster/public/p2910202523.jpg'},
+{'name': '头脑特工队2...', 'bill': 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2907600518.jpg'},
+...,
+{'name': '替身纸人2', 'bill': 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2903162278.jpg'}]
+打印结果。
+
 
 
 
