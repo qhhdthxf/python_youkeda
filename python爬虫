@@ -50,6 +50,7 @@ data = response.text
 first_regex = r'<ul(\s*?)class="cf"(\s*?)id="hreo_list">([\s\S]+?)</ul>'
 pattern = re.compile(first_regex)
 weapon = pattern.search(data).group(3).split('</li>')[0:-1]
+#使用预编译就不需要在search函数里使用两个参数了
 
 
 weaponName_regex = r'.(jpg|png)">(.+?)</a>'
@@ -64,6 +65,223 @@ for i in weapon:
   url = weaponUrl_pattern.search(i).group(1)
   weapons.append({'name':name,'url':"http:"+url})
 
-# 请补充代码，填充weapons
 
 print(weapons)
+
+第三章 Beautiful Soup
+
+例1:
+from bs4 import BeautifulSoup
+
+html = """
+<html>
+  <head>
+    <title>优课达</title>
+  </head>
+  <body>
+    <a href="https://www.youkeda.com" alt="学得比别人好一点">优课达</a>
+    <ul>
+      <li><a href="https://www.youkeda.com">问吧</a></li>
+      <li><a href="https://www.youkeda.com/academy/java">研发学院</a></li>
+      <li><a href="https://www.youkeda.com/academy/python/P2">Python学院</a></li>
+      <li><a href="https://www.youkeda.com/app">APP下载</a></li>
+    </ul>
+  </body>
+</html>
+"""
+
+result = BeautifulSoup(html, 'html.parser')
+aObj = result.a
+print("{}-{}-{}".format(aObj.get_text(),aObj['alt'],aObj['href']))
+
+find_all函数使用情况：
+1.查询所有的a标签
+aList = result.find_all('a')
+2.查询所有class为info的li标签
+liList = result.find_all('li','info')
+3.查询所有的href为https://www.youkeda.com的a标签
+aList = result.find_all('a',href='https://www.youkeda.com')
+4.多重属性联合筛选
+result.find_all('a',href='',class='')
+
+例2:
+from bs4 import BeautifulSoup
+
+html = """
+<html>
+  <head>
+    <title>优课达</title>
+  </head>
+  <body>
+    <a href="https://www.youkeda.com" alt="学得比别人好一点">优课达</a>
+    <ul>
+      <li><a href="https://www.youkeda.com">问吧</a></li>
+      <li class="info"><a href="https://www.youkeda.com/academy/java">研发学院</a></li>
+      <li class="info"><a href="https://www.youkeda.com/academy/python/P2">Python学院</a></li>
+      <li class="info last"><a class="download" href="https://www.youkeda.com/app">APP下载</a></li>
+    </ul>
+  </body>
+</html>
+"""
+result = BeautifulSoup(html, 'html.parser')
+aList = result.find_all('li','info')
+
+for i in aList:
+  print('{}-{}'.format(i.find_all('a')[0].get_text(),i.find_all('a')[0]['href']))
+#留意这种输出法
+
+！当存在嵌套时，可以使用如下语法
+aApps = result.select('body > ul > li.info.last > a.download')
+其中
+li.info.last指 class为info和last的li标签
+a.download指 class为download的a标签
+
+根据以上知识，给出如下例3:
+import requests
+from bs4 import BeautifulSoup
+weapons = []
+
+response = requests.get('http://news.4399.com/gonglue/wzlm/daoju/')
+response.encoding = 'gb2312'
+
+result = BeautifulSoup(response.text, 'html.parser')
+
+liList = result.select('ul.cf#hreo_list > li')
+for item in liList:
+  name = item.a.get_text()[1:]
+  url = item.img['lz_src']
+  weapons.append({'name': name, 'url': url})
+
+print(weapons)
+
+第四章 静态页面实战
+例1:
+import requests
+from bs4 import BeautifulSoup
+import re
+
+
+# 获取海报图片地址
+def getBill(film):
+  billDoms = film.select('div.pic > a > img')
+  if len(billDoms) > 0:
+    return billDoms[0].attrs['src']
+  return ''
+
+
+# 获取多个名称
+def getNames(film):
+  nameBoxDom = film.select('div.info > div.hd > a')[0]
+
+  # 查询到所有的名称DOM
+  nameDoms = nameBoxDom.find_all("span")
+  names = []
+  for nameDom in nameDoms:
+    # 将奇怪字符串替换掉
+    name = re.sub('\xa0', '', nameDom.get_text())
+
+    # 得到的名称可能本身还包含多个名称，使用 '/' 分割
+    if name.find('/') != -1:
+      tempNames = name.split('/')
+      for tempName in tempNames:
+
+        # 去除左右的空格
+        tempName = tempName.strip()
+        if tempName != '':
+          names.append(tempName)
+    else:
+      names.append(name)
+  return names
+
+
+# 获取导演，年份，类别，地区信息
+def getOtherInfo(film):
+  infoDom = film.select('div.info > div.bd > p:nth-child(1)')[0]
+  info = infoDom.get_text().strip()
+  temps = info.split('\n')
+
+  # temp[0] 是导演和主演信息，先找到主演的位置，然后用字符串分割出导演内容
+  endIndex = temps[0].find('主演:')
+  director = temps[0][3:endIndex].strip()
+
+  # temp[1] 包含的年份，类别，地区信息
+  others = temps[1].split('/')
+  year = others[0].strip()
+
+  # areas types 为数组形式，需要用空格分割原始字符串
+  areas = others[1].strip().split(' ')
+  types = others[2].strip().split(' ')
+
+  return (director, year, areas, types)
+
+
+# 获取评分
+def getRate(film):
+  return film.select('div.info > div.bd > div > span.rating_num')[0].get_text()
+
+
+resultFilms = []
+
+
+def startSpider(url):
+  user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'
+  response = requests.get(url, headers={'User-Agent': user_agent})
+
+  # 同样我们可以根据 meta charset 获取到页面的编码方式
+  response.encoding = 'utf-8'
+
+  result = BeautifulSoup(response.text, 'html.parser')
+  films = result.select('#content > div > div.article > ol > li')
+  for film in films:
+    bill = getBill(film)
+    names = getNames(film)
+    (director, year, areas, types) = getOtherInfo(film)
+    rate = getRate(film)
+    resultFilms.append({
+        'names': names,
+        'bill': bill,
+        'director': director,
+        'year': year,
+        'areas': areas,
+        'types': types,
+        'rate': rate
+    })
+
+
+for i in range(10):
+  startSpider('https://movie.douban.com/top250?start={}'.format(i * 25))
+
+print(resultFilms)
+
+例2:
+#可以通过在检查-elements 的标签，右击，在copy栏里选择copy selector方便获得BeautifulSoup的search信息
+
+import requests
+from bs4 import BeautifulSoup
+import re
+
+
+resultFilms = []
+
+url = 'https://movie.douban.com/cinema/nowplaying/hangzhou/'
+user_Agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'
+response = requests.get(url,headers = {'User-Agent' : user_Agent})
+response.encoding = 'utf-8'
+result = BeautifulSoup(response.text,'html.parser')
+films = result.select("#nowplaying > div.mod-bd > ul > li")
+
+for film in films:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
